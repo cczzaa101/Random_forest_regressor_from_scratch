@@ -69,7 +69,15 @@ with open('testing.csv') as f:
         
         temp.append( medic_sum )
         testing.append( copy.deepcopy(temp) )   
-        
+
+for i in range(7):
+	with open( 'special_xgb_data/'+ str(i+1) +'.json', 'w' ) as f:
+		newy = []
+		for ind in range( len(y) ):
+			if( y[ind] > i+1 ): newy.append(1)
+			else: newy.append(0)
+		f.write( json.dumps({'x':x, 'y':newy}) )
+		
 with open('processed_xgb.json', 'w') as f:
     f.write( json.dumps( {'x':x, 'y':y } ) )
 
