@@ -15,7 +15,10 @@ with open('data/test_data.json') as f:
         R.write('Id,Response')
         count = 20000
         for i in res:
-            R.write('\n' + str(count) + ',' + str( int(i + 0.5 ) ) )
+            if(i<8):
+                R.write('\n' + str(count) + ',' + str( int(i + 0.5 ) ) )
+            else:
+                R.write('\n' + str(count) + ',' + str( 8 ) )
             count += 1
     
 

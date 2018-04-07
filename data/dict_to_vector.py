@@ -15,7 +15,7 @@ for i in l:
     temp = []
     for key in i:
         if(key == 'Response'):
-            y.append( i[key] )
+            y.append( int( i[key] ) )
             continue
             
         if( key in banned_keys ): continue
