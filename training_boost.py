@@ -11,13 +11,13 @@ for ind in range( len(t['y']) ):
     t['y'][ind] = (t['y'][ind] -1)/7
 dtrain = xgb.DMatrix( t['x'], label = t['y'], missing = missing )
 
-param = {'bst:max_depth':2, 'bst:eta':1, 'silent':1, 'objective':'binary:logistic' }
+param = {'bst:max_depth':6, 'bst:eta':0.15, 'silent':1, 'objective':'binary:logistic' }
 param['nthread'] = 4
 plst = list( param.items() )
 plst += [('eval_metric', 'auc')] 
 plst += [('eval_metric', 'ams@0')]
 
-num_round = 30000
+num_round = 50
 
 test = []
 with open('data/test_data_xgb.json') as f:

@@ -17,21 +17,22 @@ with open('training.csv') as f:
     r = f.readline()
     attributes = r.replace('\n','').split(',')
     for line in f:
-        l = line.replace('\n', '').split(',')
+        l = line.replace('\"','').replace('\n', '').split(',')
         medic_sum = 0
 
         temp = []
         for ind in range( len(l) ):
-            if( attributes[ind] == 'Product_Info_2' ):
+            if( ind==2 ):
                 if( l[ind] == ''):
                     temp.append(missing)
                     temp.append(missing)
                 else:
+                    #print( l[ind][0])
                     temp.append( ord( l[ind][0] )  - ord('A') )
                     temp.append( int( l[ind][1] ) )
             elif ( attributes[ind].find('Medical_Keyword')!=-1 ):
                 if( l[ind]=='1' ): medic_sum+=1
-            elif ( (ind!=0)  and ( attributes[ind] != 'Response' ) ):
+            elif ( (ind!=0)  and ( attributes[ind] != attributes[-1] ) ):
                 if( l[ind] == ''):
                     temp.append(missing)
                 else:
@@ -46,12 +47,12 @@ with open('testing.csv') as f:
     r = f.readline()
     attributes = r.replace('\n','').split(',')
     for line in f:
-        l = line.replace('\n', '').split(',')
+        l = line.replace('\"','').replace('\n', '').split(',')
         medic_sum = 0
 
         temp = []
         for ind in range( len(l) ):
-            if( attributes[ind] == 'Product_Info_2' ):
+            if( ind == 2 ):
                 if( l[ind] == ''):
                     temp.append(missing)
                     temp.append(missing)
