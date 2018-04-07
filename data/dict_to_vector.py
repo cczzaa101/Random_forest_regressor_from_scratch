@@ -8,7 +8,7 @@ l = json.loads(f.read())
 
 f = open('global_stat.json', 'r')
 global_stat = json.loads(f.read())
-
+banned_keys = [ 'Product_Info_2' ]
 x = []
 y = []
 for i in l:
@@ -18,6 +18,8 @@ for i in l:
             y.append( i[key] )
             continue
             
+        if( key in banned_keys ): continue
+        
         if( i[key] in product_to_ind ):
             temp.append( product_to_ind[ i[key] ])
         else:

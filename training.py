@@ -1,5 +1,5 @@
 from sklearn import svm
-clf = svm.SVC(cache_size=2000)
+clf = svm.SVR(C=1.0, epsilon=0.2)
 import json
 
 with open('data/processed.json') as f:
@@ -15,7 +15,7 @@ with open('data/test_data.json') as f:
         R.write('Id,Response')
         count = 20000
         for i in res:
-            R.write('\n' + str(count) + ',' + i)
+            R.write('\n' + str(count) + ',' + str( int(i + 0.5 ) ) )
             count += 1
     
 

@@ -1,7 +1,7 @@
 import json
 import copy
 product_to_ind = {"D4": 0, "A8": 1, "D3": 2, "A2": 3, "D2": 4, "A1": 5, "A7": 6, "B2": 7, "D1": 8, "A3": 9, "E1": 10, "A6": 11, "A5": 12, "C1": 13, "C4": 14, "C3": 15, "C2": 16, "B1": 17, "A4": 18}
-
+banned_keys = [ 'Product_Info_2' ]
 global_stat = {}
 res = []
 with open( 'global_stat.json', 'r') as f:
@@ -35,6 +35,7 @@ with open('testing.csv','r') as f:
         temp = []
         for i in range(len(l)) :
             if(i==0): continue
+            if( attributes[i] in banned_keys): continue
             if( attributes[i] == 'Product_Info_2' ): 
                 temp.append( l[i] )
                 continue
