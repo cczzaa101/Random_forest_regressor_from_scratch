@@ -95,7 +95,7 @@ for ind in range( len( processed_data_ug ) ):
 				if( attributes_type [ key ] == 'REAL' ):
 					processed_data_ug[ind] [ key ] = group_statistics[ label ] [ key ] ['sum'] /group_statistics[ label ] [ key ] ['count']
 				else:
-					processed_data_ug[ind] [ key ] = int( group_statistics[ label ] [ key ] ['sum'] /group_statistics[ label ] [ key ] ['count'] )
+					processed_data_ug[ind] [ key ] = int( group_statistics[ label ] [ key ] ['sum'] /group_statistics[ label ] [ key ] ['count'] + 0.5 )
 				# num, use mean
 					
 with open('processed.json', 'w') as f:
