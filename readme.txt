@@ -9,4 +9,4 @@ To compile and run the code:
 3. in main folder, run
 	(1)training.py to train and predict by SVM
 	(2)training_nn.py to train and predict by NN
-	(3)training_boost.py to train and predict by XGB
+	(3)training_boost.py to train and predict by XGB (prefered, result is in result3.csv)

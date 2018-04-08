@@ -15,7 +15,7 @@ missing = 74122.387
 
 with open('training.csv') as f:
     r = f.readline()
-    attributes = r.replace('\n','').split(',')
+    attributes = r.replace('\"','').replace('\n','').split(',')
     for line in f:
         l = line.replace('\"','').replace('\n', '').split(',')
         medic_sum = 0
@@ -23,9 +23,8 @@ with open('training.csv') as f:
         temp = []
         age = -1
         for ind in range( len(l) ):
-            if( attributes[ind] in ban_words ): continue
-            if( ind == 8 ):
-                if( l[ind]!='' ): age = float(l[ind])
+            if( attributes[ind] in ban_words ): 
+                #print('h')
                 continue
             if( ind==2 ):
                 if( l[ind] == ''):
@@ -41,12 +40,7 @@ with open('training.csv') as f:
                 if( l[ind] == ''):
                     temp.append(missing)
                 else:
-                    if( ind == 11 ):
-                        if( age!=-1 ):
-                            temp.append( float(l[ind])*age )
-                        else:
-                            temp.append(missing)
-                    else: temp.append( float(l[ind]) )
+                    temp.append( float(l[ind]) )
         
         temp.append( medic_sum )
         x.append( copy.deepcopy(temp) )
@@ -55,18 +49,14 @@ with open('training.csv') as f:
 testing = []        
 with open('testing.csv') as f:
     r = f.readline()
-    attributes = r.replace('\n','').split(',')
+    attributes = r.replace('\"','').replace('\n','').split(',')
     for line in f:
         l = line.replace('\"','').replace('\n', '').split(',')
         medic_sum = 0
 
         temp = []
-        age = -1
         for ind in range( len(l) ):
             if( attributes[ind] in ban_words ): continue
-            if( ind == 8 ):
-                if( l[ind]!='' ): age = float(l[ind])
-                continue
                 
             if( ind == 2 ):
                 if( l[ind] == ''):
@@ -81,12 +71,7 @@ with open('testing.csv') as f:
                 if( l[ind] == ''):
                     temp.append(missing)
                 else:
-                    if( ind == 11 ):
-                        if( age!=-1 ):
-                            temp.append( float(l[ind])*age )
-                        else:
-                            temp.append(missing)
-                    else: temp.append( float(l[ind]) )
+                    temp.append( float(l[ind]) )
         
         temp.append( medic_sum )
         testing.append( copy.deepcopy(temp) )   
