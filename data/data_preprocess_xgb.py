@@ -9,7 +9,7 @@ attributes  = []
 attributes_type = {}
 x = []
 y = []
-
+ban_words = ['Medical_History_10','Medical_History_24','Medical_History_32']
 
 missing = 74122.387
 
@@ -21,7 +21,12 @@ with open('training.csv') as f:
         medic_sum = 0
 
         temp = []
+        age = -1
         for ind in range( len(l) ):
+            if( attributes[ind] in ban_words ): continue
+            if( ind == 8 ):
+                if( l[ind]!='' ): age = float(l[ind])
+                continue
             if( ind==2 ):
                 if( l[ind] == ''):
                     temp.append(missing)
@@ -36,7 +41,12 @@ with open('training.csv') as f:
                 if( l[ind] == ''):
                     temp.append(missing)
                 else:
-                    temp.append( float(l[ind]) )
+                    if( ind == 11 ):
+                        if( age!=-1 ):
+                            temp.append( float(l[ind])*age )
+                        else:
+                            temp.append(missing)
+                    else: temp.append( float(l[ind]) )
         
         temp.append( medic_sum )
         x.append( copy.deepcopy(temp) )
@@ -51,7 +61,13 @@ with open('testing.csv') as f:
         medic_sum = 0
 
         temp = []
+        age = -1
         for ind in range( len(l) ):
+            if( attributes[ind] in ban_words ): continue
+            if( ind == 8 ):
+                if( l[ind]!='' ): age = float(l[ind])
+                continue
+                
             if( ind == 2 ):
                 if( l[ind] == ''):
                     temp.append(missing)
@@ -65,7 +81,12 @@ with open('testing.csv') as f:
                 if( l[ind] == ''):
                     temp.append(missing)
                 else:
-                    temp.append( float(l[ind]) )
+                    if( ind == 11 ):
+                        if( age!=-1 ):
+                            temp.append( float(l[ind])*age )
+                        else:
+                            temp.append(missing)
+                    else: temp.append( float(l[ind]) )
         
         temp.append( medic_sum )
         testing.append( copy.deepcopy(temp) )   
