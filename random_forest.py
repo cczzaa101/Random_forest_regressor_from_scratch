@@ -117,6 +117,7 @@ def do_prediction(P):
         res.append( sum / forest_num )
         
     f = open('res.csv', 'w')
+    f.write('Id,Response\n')
     for i in res:
         f.write( str(start_ind) + ',' + str( int(i+0.5) ) + '\n' )
         start_ind += 1
