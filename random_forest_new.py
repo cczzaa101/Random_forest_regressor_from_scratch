@@ -6,7 +6,7 @@ from numpy import array,var,mean
 from numpy import polyfit
 import json
 
-#seed()
+#parameter set up
 start_ind = 20000
 col_sample_lim = 10
 row_sample_lim = 800
@@ -19,15 +19,27 @@ second_fit_model = []
 original_D = []
 oobCheckResult = []  
 
+'''
+    take mean of label subset
+'''
 def avg(D):
     res = mean(D)
     if( res == np.nan ): return 0
     return res
+    
+'''
+    calc reg_error by var*size
+'''
 def reg_error(D):
     res = var(D['y'])*len(D['y'])
     if( res == np.nan ): return 0
     return res
-    
+
+'''
+    split the subset into two subsets of given feature
+    < split point, first subset
+    > split point, second subset
+'''    
 def do_split(D, feature, split_point):
     div0 = []
     div0_y = []
@@ -43,7 +55,10 @@ def do_split(D, feature, split_point):
             div1_y.append( D['y'][i] )
             
     return {'x': array(div0), 'y':div0_y}, {'x': array(div1), 'y':div1_y}
-    
+
+'''
+    find the best split point by trying all the values of randomly selected features
+'''    
 def find_split_point(D):
     selected_feature = set([])
     while(len(selected_feature)< col_sample_lim):
@@ -68,7 +83,10 @@ def find_split_point(D):
         return None, mean(D['y'])
     else:
         return best_feature, best_split_point
-        
+
+'''
+    create a single decision tree traversely
+'''        
 def create_tree(D, dep):
     F,V = find_split_point(D)
     if( F == None ): return V
@@ -82,6 +100,9 @@ def create_tree(D, dep):
     #print(node)
     return node
 
+'''
+    get the predicted value from a single decision tree
+'''
 def get_value(node, input):
     #print(node)
     if(type(node) is dict):
@@ -96,7 +117,10 @@ def get_value(node, input):
             return res
     else:
         return node
-        
+
+'''
+    randomly selected samples and build different decision trees
+'''        
 def build_forest(D):
     global D_array
     global tree_array
@@ -113,7 +137,13 @@ def build_forest(D):
         D_array[i]['x'] = array( deepcopy(D_array[i]['x']) )
         #print(D_array[i])
         tree_array.append( create_tree(D_array[i], 0) )
-        
+
+'''
+    predict values of the given P input
+    if is_polyfit is true,
+    we are using training input to find the linear relation ship
+    between predicted value and actual value
+'''        
 def do_prediction(P, is_polyfit = False):
     res = []
     global start_ind
@@ -177,6 +207,9 @@ def do_prediction(P, is_polyfit = False):
         print( second_fit_model )
     start_ind = 0
 
+'''
+    get the start ID
+'''
 with open('data/testing.csv') as f:
     l = f.readline()
     l = f.readline()

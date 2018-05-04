@@ -6,7 +6,7 @@ from numpy import array,var,mean
 from numpy import polyfit
 import json
 
-#seed()
+#parameter set up
 start_ind = 20000
 col_sample_lim = 10
 row_sample_lim = 500
@@ -19,6 +19,9 @@ second_fit_model = []
 original_D = []
 oobCheckResult = []
 
+'''
+    get_value function, see random forest new.py
+'''
 def get_value(node, input):
     #print(node)
     if(type(node) is dict):
@@ -33,7 +36,10 @@ def get_value(node, input):
             return res
     else:
         return node
-        
+
+'''
+    do prediction function, see random forest new.py
+'''        
 def do_prediction(P, is_polyfit = False):
     res = []
     global start_ind
@@ -95,16 +101,19 @@ def do_prediction(P, is_polyfit = False):
         print( second_fit_model )
 
     
-    
+#loads trained model    
 with open('model_best_sofar.json') as f:
     tree_array = json.loads(f.read())
     print('model_loading finished')
-    
+
+#loads the first ID    
 with open('data/testing.csv') as f:
     l = f.readline()
     l = f.readline()
     start_ind = int(l.split(',')[0])
     print(start_ind)
+    
+#preprocessing and predicting
 with open('data/processed.json') as f:
     train = pd.read_csv("data/training.csv")
     test = pd.read_csv("data/testing.csv")
