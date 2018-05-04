@@ -8,24 +8,29 @@ l = json.loads(f.read())
 
 f = open('global_stat.json', 'r')
 global_stat = json.loads(f.read())
-banned_keys = [ 'Product_Info_2' ]
+ban_words = ['Medical_History_10','Medical_History_24','Medical_History_32']
 x = []
 y = []
 for i in l:
     temp = []
+    medical_sum = 0
     for key in i:
         if(key == 'Response'):
             y.append( int( i[key] ) )
             continue
             
-        if( key in banned_keys ): continue
+        if( key in ban_words ): continue
         
+        if( key.find('Medical_Keyword')==0 ):
+            medical_sum += int(i[key])
+            continue
+            
         if( i[key] in product_to_ind ):
             temp.append( product_to_ind[ i[key] ])
         else:
             if( global_stat[key]['count']>10000 ):
                 temp.append( float( i[ key ] ) )
-    
+    temp.append( medical_sum )
     x.append( copy.deepcopy(temp) )
     
 f = open( 'processed.json' , 'w' )

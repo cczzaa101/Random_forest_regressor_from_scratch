@@ -1,9 +1,11 @@
-from random import randrange
+from random import randrange,seed
 import numpy as np
 from copy import deepcopy
 from numpy import array,var,mean
+from numpy import polyfit
 import json
 
+#seed()
 start_ind = 20000
 col_sample_lim = 10
 row_sample_lim = 500
@@ -12,6 +14,9 @@ forest_num = 40
 max_depth = 15
 D_array = []
 tree_array = []
+second_fit_model = []
+original_D = []
+oobCheckResult = []
 
 def avg(D):
     res = mean(D)
@@ -107,26 +112,76 @@ def build_forest(D):
         #print(D_array[i])
         tree_array.append( create_tree(D_array[i], 0) )
         
-def do_prediction(P):
+def do_prediction(P, is_polyfit = False):
     res = []
     global start_ind
+    global second_fit_model
+    global oobCheckResult
+    
+    if(is_polyfit):
+        for tree in tree_array:
+            oobCheckResult.append(0)
+    with open('model.json','w') as f:
+        f.write( json.dumps(tree_array) )
+        
+    pred_ind = 0
     for i in P:
         sum = 0
+        tree_ind = 0
         for tree in tree_array:
-            sum = sum + get_value( tree, i)
-        res.append( sum / forest_num )
+            temp = get_value( tree, i)
+            
+            if(is_polyfit): 
+                oobCheckResult[tree_ind] += np.abs( original_D['y'][pred_ind] - temp )
+            else:
+                temp *= 1 #oobCheckResult[tree_ind]
+            sum += temp
+            tree_ind += 1
+        pred_ind += 1
+        if( is_polyfit or True):
+            res.append( sum / forest_num )
+        else:
+            res.append(sum)
+    
+    if(is_polyfit): 
+        for i in range( len(oobCheckResult) ):
+            oobCheckResult[i]/=len(original_D['x'])
+            oobCheckResult[i] = 1/oobCheckResult[i]
+    
+        sum_of_oob = np.sum(oobCheckResult)
+    
+        for i in range( len(oobCheckResult) ):
+            oobCheckResult[i]/=sum_of_oob
         
-    f = open('res.csv', 'w')
-    f.write('Id,Response\n')
-    for i in res:
-        f.write( str(start_ind) + ',' + str( int(i+0.5) ) + '\n' )
-        start_ind += 1
-    f.close()
+    if( not is_polyfit):
+        print(oobCheckResult)
+        f = open('res.csv', 'w')
+        f.write('Id,Response\n')
+        for i in res:
+            #f.write( str(start_ind) + ',' + str( int(i+0.5) ) + '\n' )
+            #print(i)
+            
+            temp = 0
+            for ind in range( len(second_fit_model) ):
+                temp += (i** (len(second_fit_model) - ind - 1) ) * second_fit_model[ind]
+            #print(temp)
+            f.write( str(start_ind) + ',' + str( int(i+0.5) ) + '\n' )
+            start_ind += 1
+        f.close()
+    else:
+        
+        second_fit_model = polyfit(res, original_D['y'], 1)
+        print(oobCheckResult)
+        print( second_fit_model )
+    start_ind = 0
+
     
 with open('data/processed.json') as f:
     t = json.loads( f.read() )
-    
+    original_D = t
+    row_sample_lim = max( int(len(t['x'])/40), 500 )
     build_forest(t)
+    do_prediction( t['x'] , True) 
     
 with open('data/testing.csv') as f:
     l = f.readline()
