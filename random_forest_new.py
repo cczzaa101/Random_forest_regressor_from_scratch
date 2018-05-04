@@ -187,7 +187,7 @@ def do_prediction(P, is_polyfit = False):
         
     if( not is_polyfit):
         print(oobCheckResult)
-        f = open('res_new.csv', 'w')
+        f = open('res.csv', 'w')
         f.write('Id,Response\n')
         for i in res:
             #f.write( str(start_ind) + ',' + str( int(i+0.5) ) + '\n' )
@@ -216,7 +216,7 @@ with open('data/testing.csv') as f:
     start_ind = int(l.split(',')[0])
     
 #preprocessing, see readme.txt
-with open('data/processed.json') as f:
+if(True):
     train = pd.read_csv("data/training.csv")
     test = pd.read_csv("data/testing.csv")
     banned_key = ["Id", "Response"]

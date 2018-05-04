@@ -7,18 +7,14 @@ from numpy import polyfit
 import json
 
 #parameter set up
-start_ind = 20000
-col_sample_lim = 10
-row_sample_lim = 500
-err_thres = 0.001
-forest_num = 100
-max_depth = 15
+start_ind = 0
+forest_num = 150
 D_array = []
 tree_array = []
 second_fit_model = []
 original_D = []
 oobCheckResult = []
-
+test = []
 '''
     get_value function, see random forest new.py
 '''
@@ -90,8 +86,10 @@ def do_prediction(P, is_polyfit = False):
             temp = 0
             for ind in range( len(second_fit_model) ):
                 temp += (i** (len(second_fit_model) - ind - 1) ) * second_fit_model[ind]
-            #print(temp)
-            f.write( str(start_ind) + ',' + str( int(temp+0.5) ) + '\n' )
+            if( str(test['Id'][start_ind]) == '27799'): print(temp)
+            if( temp < 0.5 ): temp = 0.5
+            if(temp > 8): temp = 7.9
+            f.write( str(test['Id'][start_ind])  + ',' + str( int(temp+0.5) ) + '\n' )
             start_ind += 1
         f.close()
     else:
@@ -106,15 +104,9 @@ with open('model_best_sofar.json') as f:
     tree_array = json.loads(f.read())
     print('model_loading finished')
 
-#loads the first ID    
-with open('data/testing.csv') as f:
-    l = f.readline()
-    l = f.readline()
-    start_ind = int(l.split(',')[0])
-    print(start_ind)
     
 #preprocessing and predicting
-with open('data/processed.json') as f:
+if(True):
     train = pd.read_csv("data/training.csv")
     test = pd.read_csv("data/testing.csv")
     banned_key = ["Id", "Response"]

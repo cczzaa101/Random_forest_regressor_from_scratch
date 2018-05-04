@@ -10,5 +10,6 @@ To run the code:
 1. put training.csv and testing.csv in the data folder
 	
 2. in main folder, run
-	random_forest.py (if you DO NOT want to regenerate model)
-    random_forest_new.py (if you want to regenerate model, might take >1 hour)
+	random_forest.py (if you DO NOT want to regenerate model), result in res.csv
+    OR random_forest_new.py (if you want to regenerate model, might take >1 hour), 
+    THEN change line 103 to 'model_new.json', rerun random_forest.py
