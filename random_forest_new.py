@@ -197,7 +197,7 @@ def do_prediction(P, is_polyfit = False):
             for ind in range( len(second_fit_model) ):
                 temp += (i** (len(second_fit_model) - ind - 1) ) * second_fit_model[ind]
             #print(temp)
-            f.write( str(start_ind) + ',' + str( int(i+0.5) ) + '\n' )
+            f.write( str(start_ind) + ',' + str( int(temp+0.5) ) + '\n' )
             start_ind += 1
         f.close()
     else:
