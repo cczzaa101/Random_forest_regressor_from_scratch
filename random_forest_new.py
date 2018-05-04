@@ -166,11 +166,11 @@ def do_prediction(P, is_polyfit = False):
             if(is_polyfit): 
                 oobCheckResult[tree_ind] += np.abs( original_D['y'][pred_ind] - temp )
             else:
-                temp *= 1 #oobCheckResult[tree_ind]
+                temp *= oobCheckResult[tree_ind]
             sum += temp
             tree_ind += 1
         pred_ind += 1
-        if( is_polyfit or True):
+        if( is_polyfit ):
             res.append( sum / forest_num )
         else:
             res.append(sum)
