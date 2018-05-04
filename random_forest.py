@@ -1,5 +1,6 @@
 from random import randrange,seed
 import numpy as np
+import pandas as pd
 from copy import deepcopy
 from numpy import array,var,mean
 from numpy import polyfit
@@ -10,76 +11,13 @@ start_ind = 20000
 col_sample_lim = 10
 row_sample_lim = 500
 err_thres = 0.001
-forest_num = 40
+forest_num = 100
 max_depth = 15
 D_array = []
 tree_array = []
 second_fit_model = []
 original_D = []
 oobCheckResult = []
-
-def avg(D):
-    res = mean(D)
-    if( res == np.nan ): return 0
-    return res
-def reg_error(D):
-    res = var(D['y'])*len(D['y'])
-    if( res == np.nan ): return 0
-    return res
-    
-def do_split(D, feature, split_point):
-    div0 = []
-    div0_y = []
-    div1 = []
-    div1_y = []
-    #print( len(D['x'])
-    for i in range( len( D['x'] ) ):
-        if( D['x'][i][feature] < split_point ):
-            div0.append( D['x'][i] )
-            div0_y.append( D['y'][i] )
-        else:
-            div1.append( D['x'][i] )
-            div1_y.append( D['y'][i] )
-            
-    return {'x': array(div0), 'y':div0_y}, {'x': array(div1), 'y':div1_y}
-    
-def find_split_point(D):
-    selected_feature = set([])
-    while(len(selected_feature)< col_sample_lim):
-        selected_feature.add( randrange( len(D['x'][0] ) ) ) #pick up some features
-    now_error = reg_error( D )
-    sub_D_0 = []
-    sub_D_1 = []
-    best_feature = None
-    best_split_point = None
-    best_reg_error = 2147483647
-    for F in selected_feature:
-        split_value = set( D['x'][ :, F] ) #all unique value for this feature
-        for V in split_value:
-            sub_D_0, sub_D_1 = do_split( D, F, V )
-            new_eval = reg_error(sub_D_0) + reg_error(sub_D_1)
-            if( new_eval < best_reg_error ):
-                best_reg_error = new_eval
-                best_feature = F
-                best_split_point = V
-                
-    if( np.abs(best_reg_error - now_error) <= err_thres ): #no improvement, no need for split
-        return None, mean(D['y'])
-    else:
-        return best_feature, best_split_point
-        
-def create_tree(D, dep):
-    F,V = find_split_point(D)
-    if( F == None ): return V
-    if( dep > max_depth ): return mean(D['y'])
-    node = {}
-    sub_D_0, sub_D_1 = do_split( D, F, V )
-    node[ 'l_child' ] = create_tree(sub_D_0, dep+1)
-    node[ 'r_child' ] = create_tree(sub_D_1, dep+1)
-    node[ 'F' ] = F
-    node[ 'V' ] = V
-    #print(node)
-    return node
 
 def get_value(node, input):
     #print(node)
@@ -96,22 +34,6 @@ def get_value(node, input):
     else:
         return node
         
-def build_forest(D):
-    global D_array
-    global tree_array
-    D_array = []
-    tree_array = []
-    
-    for i in range( forest_num ):
-        D_array.append({'x':[], 'y': []})
-        for j in range( row_sample_lim ):
-            ind = randrange( len(D['x'] ) )
-            D_array[i]['x'].append( D['x'][ind] )
-            D_array[i]['y'].append( deepcopy(D['y'][ind]) )
-        D_array[i]['x'] = array( deepcopy(D_array[i]['x']) )
-        #print(D_array[i])
-        tree_array.append( create_tree(D_array[i], 0) )
-        
 def do_prediction(P, is_polyfit = False):
     res = []
     global start_ind
@@ -121,8 +43,6 @@ def do_prediction(P, is_polyfit = False):
     if(is_polyfit):
         for tree in tree_array:
             oobCheckResult.append(0)
-    with open('model.json','w') as f:
-        f.write( json.dumps(tree_array) )
         
     pred_ind = 0
     for i in P:
@@ -154,7 +74,7 @@ def do_prediction(P, is_polyfit = False):
             oobCheckResult[i]/=sum_of_oob
         
     if( not is_polyfit):
-        print(oobCheckResult)
+        #print(oobCheckResult)
         f = open('res.csv', 'w')
         f.write('Id,Response\n')
         for i in res:
@@ -171,23 +91,33 @@ def do_prediction(P, is_polyfit = False):
     else:
         
         second_fit_model = polyfit(res, original_D['y'], 1)
-        print(oobCheckResult)
+        #print(oobCheckResult)
         print( second_fit_model )
-    start_ind = 0
 
     
-with open('data/processed.json') as f:
-    t = json.loads( f.read() )
-    original_D = t
-    row_sample_lim = max( int(len(t['x'])/40), 500 )
-    build_forest(t)
-    do_prediction( t['x'] , True) 
+    
+with open('model_best_sofar.json') as f:
+    tree_array = json.loads(f.read())
+    print('model_loading finished')
     
 with open('data/testing.csv') as f:
     l = f.readline()
     l = f.readline()
     start_ind = int(l.split(',')[0])
-    
-with open('data/test_data.json') as f:
-    test = json.loads( f.read() )
-    do_prediction( test )    
+    print(start_ind)
+with open('data/processed.json') as f:
+    train = pd.read_csv("data/training.csv")
+    test = pd.read_csv("data/testing.csv")
+    banned_key = ["Id", "Response"]
+    original_D = train.append(test)
+    original_D[ 'Product_Info_2' ] = pd.factorize(original_D["Product_Info_2"])[0]
+    original_D.fillna(-1, inplace=True)
+    original_D['Response'] = original_D['Response'].astype(int)
+    train = original_D[ original_D['Response']>0 ].copy()
+    test = original_D[original_D['Response']<0].copy()
+    target_vars = [col for col in train.columns if col not in banned_key]    
+    #print( train['response'])
+    row_sample_lim = max( int(len(train["Response"])/5), 800 )
+    original_D = {'x': array(train[target_vars]) , 'y':array(train["Response"])}
+    do_prediction(  array(train[target_vars]), True) 
+    do_prediction( array(test[target_vars]) )  

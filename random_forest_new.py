@@ -9,10 +9,10 @@ import json
 #seed()
 start_ind = 20000
 col_sample_lim = 10
-row_sample_lim = 500
-err_thres = 0.001
-forest_num = 40
-max_depth = 15
+row_sample_lim = 800
+err_thres = 1e-7
+forest_num = 150
+max_depth = 100
 D_array = []
 tree_array = []
 second_fit_model = []
@@ -72,7 +72,7 @@ def find_split_point(D):
 def create_tree(D, dep):
     F,V = find_split_point(D)
     if( F == None ): return V
-    if( dep > max_depth ): return mean(D['y'])
+    if( (dep > max_depth) or (len(D['y'])<=2) ): return mean(D['y'])
     node = {}
     sub_D_0, sub_D_1 = do_split( D, F, V )
     node[ 'l_child' ] = create_tree(sub_D_0, dep+1)
@@ -104,6 +104,7 @@ def build_forest(D):
     tree_array = []
     
     for i in range( forest_num ):
+        print(i)
         D_array.append({'x':[], 'y': []})
         for j in range( row_sample_lim ):
             ind = randrange( len(D['x'] ) )
@@ -122,8 +123,8 @@ def do_prediction(P, is_polyfit = False):
     if(is_polyfit):
         for tree in tree_array:
             oobCheckResult.append(0)
-    #with open('model_new.json','w') as f:
-        #f.write( json.dumps(tree_array) )
+    with open('model_new.json','w') as f:
+        f.write( json.dumps(tree_array) )
         
     pred_ind = 0
     for i in P:
@@ -176,8 +177,12 @@ def do_prediction(P, is_polyfit = False):
         print( second_fit_model )
     start_ind = 0
 
-
-#print( train['response'] )
+with open('data/testing.csv') as f:
+    l = f.readline()
+    l = f.readline()
+    start_ind = int(l.split(',')[0])
+    
+#preprocessing, see readme.txt
 with open('data/processed.json') as f:
     train = pd.read_csv("data/training.csv")
     test = pd.read_csv("data/testing.csv")
@@ -190,6 +195,7 @@ with open('data/processed.json') as f:
     test = original_D[original_D['Response']<0].copy()
     target_vars = [col for col in train.columns if col not in banned_key]    
     #print( train['response'])
+    row_sample_lim = max( int(len(train["Response"])/5), 800 )
     original_D = {'x': array(train[target_vars]) , 'y':array(train["Response"])}
     build_forest( {'x': array(train[target_vars]) , 'y':array(train["Response"])} )
     do_prediction(  array(train[target_vars]), True) 

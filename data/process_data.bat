@@ -1,3 +1,0 @@
-python data_preprocess.py
-python dict_to_vector.py
-python testing_preprocess.py
